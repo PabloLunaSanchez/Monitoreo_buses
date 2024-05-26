@@ -1,0 +1,79 @@
+PODS:
+  - bitmap (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_phone_direct_caller (0.0.1):
+    - Flutter
+  - fluttertoast (0.0.2):
+    - Flutter
+    - Toast
+  - geocoding_ios (1.0.5):
+    - Flutter
+  - geolocator_apple (1.2.0):
+    - Flutter
+  - google_maps_flutter_ios (0.0.1):
+    - Flutter
+    - GoogleMaps (< 9.0, >= 8.4)
+  - GoogleMaps (8.4.0):
+    - GoogleMaps/Maps (= 8.4.0)
+  - GoogleMaps/Base (8.4.0)
+  - GoogleMaps/Maps (8.4.0):
+    - GoogleMaps/Base
+  - location (0.0.1):
+    - Flutter
+  - Toast (4.1.1)
+  - url_launcher_ios (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - bitmap (from `.symlinks/plugins/bitmap/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_phone_direct_caller (from `.symlinks/plugins/flutter_phone_direct_caller/ios`)
+  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
+  - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
+  - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
+  - location (from `.symlinks/plugins/location/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+
+SPEC REPOS:
+  trunk:
+    - GoogleMaps
+    - Toast
+
+EXTERNAL SOURCES:
+  bitmap:
+    :path: ".symlinks/plugins/bitmap/ios"
+  Flutter:
+    :path: Flutter
+  flutter_phone_direct_caller:
+    :path: ".symlinks/plugins/flutter_phone_direct_caller/ios"
+  fluttertoast:
+    :path: ".symlinks/plugins/fluttertoast/ios"
+  geocoding_ios:
+    :path: ".symlinks/plugins/geocoding_ios/ios"
+  geolocator_apple:
+    :path: ".symlinks/plugins/geolocator_apple/ios"
+  google_maps_flutter_ios:
+    :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
+  location:
+    :path: ".symlinks/plugins/location/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+
+SPEC CHECKSUMS:
+  bitmap: 591b0556efe6e811a263b8dfdc511fe1faa72315
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_phone_direct_caller: bd2ffd297f371a8a6c7bfbba0196964ffe3c4358
+  fluttertoast: 9f2f8e81bb5ce18facb9748d7855bf5a756fe3db
+  geocoding_ios: d7460f56e80e118d57678efe5c2cdc888739ff18
+  geolocator_apple: 6cbaf322953988e009e5ecb481f07efece75c450
+  google_maps_flutter_ios: c454f18e0e22df6ac0e9f2a4df340858f5a3680c
+  GoogleMaps: 8939898920281c649150e0af74aa291c60f2e77d
+  location: d5cf8598915965547c3f36761ae9cc4f4e87d22e
+  Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+
+PODFILE CHECKSUM: 1959d098c91d8a792531a723c4a9d7e9f6a01e38
+
+COCOAPODS: 1.15.2
