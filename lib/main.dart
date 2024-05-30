@@ -1,5 +1,7 @@
+import 'package:app_bus_tesis/userPreferences/user_preferences.dart';
 import 'package:app_bus_tesis/vistas%20cliente/homepage.dart';
 import 'package:app_bus_tesis/vistas%20conductor/Login.dart';
+import 'package:app_bus_tesis/vistas%20conductor/Login_conductor.dart';
 import 'package:app_bus_tesis/vistas%20conductor/bienvCond_Client.dart';
 import 'package:app_bus_tesis/vistas%20conductor/onboarding_screen.dart';
 import 'package:app_bus_tesis/vistas%20conductor/principal_conductor.dart';
@@ -24,32 +26,25 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.blue),
       debugShowCheckedModeBanner: false,
       initialRoute: '/onboarding', // Agregar una ruta inicial
-      routes: {
-        '/onboarding': (context) =>
-            const OnboardingScreen(), // Ruta para la pantalla de bienvenida
-        '/Login': (context) => PrincipalConductor(), // Ruta para la próxima página
-      },
+      // routes: {
+      //   '/onboarding': (context) =>
+      //       const OnboardingScreen(), // Ruta para la pantalla de bienvenida
+      //   '/Login': (context) => Conductor_ClientePage(), // Ruta para la próxima página
+      // },
       home: FutureBuilder(
-        future: yourFutureFunction(), // Proporciona un Future a FutureBuilder
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // Si el Future ha terminado, puedes mostrar LoginScreen
-            return LoginScreen();
-          } else {
-            // Mientras tanto, puedes mostrar un indicador de carga o algo más
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
+        future: RecordarUserPref.LeerUserInfo(),
+        builder: (context, dataSnapShot){
+          if(dataSnapShot.data == null){
+            return Conductor_ClientePage();
           }
-        },
+          else{
+            return MapaPage();
+          }
+        }
+        
+ 
       ),
+      
     );
-  }
-
-  Future<void> yourFutureFunction() {
-    // Simula una operación asíncrona que se resuelve después de 2 segundos
-    return Future.delayed(Duration(seconds: 2));
   }
 }

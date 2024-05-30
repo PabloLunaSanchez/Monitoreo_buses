@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:app_bus_tesis/userPreferences/currentUser.dart';
+import 'package:app_bus_tesis/vistas%20cliente/homepage.dart';
 import 'package:app_bus_tesis/vistas%20conductor/principal_conductor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,14 +9,29 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 
 
-class EditProfilePage extends StatefulWidget {
+class EditProfilePageCliente extends StatefulWidget {
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _EditProfilePageState extends State<EditProfilePageCliente> {
+
+void saveChanges() {
+    // Aquí puedes implementar la lógica para guardar los cambios.
+    // Por ejemplo, puedes enviar los datos al servidor o almacenarlos localmente.
+
+    // Ejemplo de impresión para demostrar cómo acceder a los datos del perfil.
+    print("Nombre: ${_currentUser.user.nombre_tutor}");
+    print("Correo: ${_currentUser.user.correo}");
+    print("Contraseña: ${_currentUser.user.contrasena}");
+    print("Telefono: ${_currentUser.user.telefono}");
+  }
+
   bool showPassword = false;
    CurrentUser _currentUser = Get.put(CurrentUser());
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,8 +44,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
             color: Colors.green,
           ),
           onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => PrincipalConductor()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => MapaPage()));
           },
         ),
       ),
@@ -71,7 +87,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           image: DecorationImage(
                             fit: BoxFit.cover,
                             image: AssetImage(
-                                "assets/images/conductorprofile.jpeg"), // Reemplaza "tu_imagen.png" con la ruta correcta de tu imagen
+                                "assets/images/avatar-cindy-.png"), // Reemplaza "tu_imagen.png" con la ruta correcta de tu imagen
                           ),
                         ),
                       ),
@@ -101,13 +117,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 SizedBox(
                   height: 35,
                 ),
-                buildTextField("Nombre", "Pedro", false),
-                buildTextField("Correo", "Pedro1234@gmail.com", false),
-                buildTextField("Contraseña", "******", true),
-                buildTextField("Telefono", "833465758686", false),
-                buildTextField("Placa", "THR-5678", false),
-                buildTextField("Capacidad de asientos", "15", false),
-                buildTextField("Puertas", "4", false),
+                 buildTextField("Correo", _currentUser.user.correo, false),
+                buildTextField("Contraseña", _currentUser.user.contrasena, true),
+                  buildTextField("Telefono", _currentUser.user.telefono, false),
+                   buildTextField("Nombre del tutor", _currentUser.user.nombre_tutor, false),
+                buildTextField("Apellido Tutor", _currentUser.user.apellido_tutor, false),
+               
+                buildTextField("Nombre del hijo", _currentUser.user.nombre_hijo, false),
+                buildTextField("Apellido del hijo", _currentUser.user.apellido_hijo, false),
+
                 SizedBox(
                   height: 35,
                 ),
@@ -129,11 +147,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 color: Colors.black)),
                       ),
                       ElevatedButton(
+                        onPressed: saveChanges,
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
                               Colors.deepOrange),
                         ),
-                        onPressed: () {},
                         child: Text('Guardar'),
                       ),
                     ])
@@ -143,36 +161,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget buildTextField(
-      String labelText, String placeholder, bool isPasswordTextField) {
+  Widget buildTextField(String labelText, String placeholder, bool isPasswordTextField) {
     return Padding(
-        padding: const EdgeInsets.only(bottom: 35.0),
-        child: TextField(
-          obscureText: isPasswordTextField ? showPassword : false,
-          decoration: InputDecoration(
-            suffixIcon: isPasswordTextField
-                ? IconButton(
-                    onPressed: () {
-                      setState(() {
-                        showPassword = !showPassword;
-                      });
-                    },
-                    icon: Icon(
-                      Icons.remove_red_eye,
-                      color: Colors.grey,
-                    ),
-                  )
-                : null,
-            contentPadding: EdgeInsets.only(bottom: 3),
-            labelText: labelText,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            hintText: placeholder,
-            hintStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+      padding: const EdgeInsets.only(bottom: 35.0),
+      child: TextField(
+        obscureText: isPasswordTextField ? !showPassword : false,
+        decoration: InputDecoration(
+          suffixIcon: isPasswordTextField
+              ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      showPassword = !showPassword;
+                    });
+                  },
+                  icon: Icon(
+                    showPassword ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.grey,
+                  ),
+                )
+              : null,
+          contentPadding: EdgeInsets.only(bottom: 3),
+          labelText: labelText,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hintText: placeholder,
+          hintStyle: TextStyle(
+            fontSize: 16,
+           
+            color: Colors.black,
           ),
-        ));
+        ),
+         onChanged: (value) {
+          setState(() {
+            if (labelText == "Nombre") {
+              _currentUser.user.nombre_tutor = value;
+            } else if (labelText == "Correo") {
+             _currentUser.user.correo = value;
+            } else if (labelText == "Contraseña") {
+             _currentUser.user.contrasena = value;
+            } else if (labelText == "Telefono") {
+              _currentUser.user.telefono = value;
+            }
+          });
+  }),
+    );
   }
 }

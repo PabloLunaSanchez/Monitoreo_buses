@@ -391,13 +391,7 @@ class OrderTrackingPageState extends State<PrincipalConductor> {
                 title: Text('Historial de viajes'),
                 onTap: () {},
               ),
-              ListTile(
-                leading: Icon(Icons.help_center),
-                title: Text('Ayuda'),
-                onTap: () {
-                  // Implementa la acción deseada.
-                },
-              ),
+             
               ListTile(
                 leading: Icon(Icons.logout),
                 title: Text('Cerrar sesión'),
@@ -659,7 +653,7 @@ class OrderTrackingPageState extends State<PrincipalConductor> {
                             )),
                       ),
                       const SizedBox(width: 10.0),
-                      Text("Erika Martinez"),
+                      Text("Jimena Gabriela"),
                       const Spacer(),
                       InkWell(
                         onTap: () async {

@@ -1,10 +1,17 @@
+import 'dart:convert';
+
+import 'package:app_bus_tesis/Modelos/user.dart';
+import 'package:app_bus_tesis/api_conexion/api_conexion.dart';
 import 'package:app_bus_tesis/componets.dart/page_title_bar.dart';
 import 'package:app_bus_tesis/componets.dart/upside.dart';
+import 'package:app_bus_tesis/userPreferences/user_preferences.dart';
+import 'package:app_bus_tesis/vistas%20cliente/homepage.dart';
 import 'package:app_bus_tesis/vistas%20cliente/sign_up.dart';
 import 'package:app_bus_tesis/widgets/rounded_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -16,6 +23,40 @@ class _LoginScreenState extends State<LoginScreen> {
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var isObsecure = true.obs;
+
+  loginUsuario() async{
+  
+      var res = await http.post(Uri.parse(API.login),
+       body: {
+       "correo" : emailController.text.trim(),
+       "contrasena" : passwordController.text.trim()
+       },
+    );
+  if (res.statusCode == 200) {
+        var resBodyOfLogin = jsonDecode(res.body);
+        if (resBodyOfLogin['success'] == true) {
+
+          Fluttertoast.showToast(msg: "Ha inciado sesion correctamente");
+     
+
+         User userInfo = User.fromJson(resBodyOfLogin["userData"]);
+         //guardar info del usuario
+
+         await RecordarUserPref.AlmacenaminetoInfoUser(userInfo);
+         
+         Future.delayed(Duration(milliseconds: 2000),()
+         {
+          Get.to(MapaPage());
+         });
+        }
+        else{
+        Fluttertoast.showToast(msg: "Incorrecto vuelva a escribir su correo o contraseña, vuelve a intentarlo");
+        }
+      }
+    
+    
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -195,9 +236,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                         child: InkWell(
                                           onTap: () {
                                             if (formkey.currentState!
-                                                .validate()) ;
+                                                .validate()){
+                                                  loginUsuario();
+                                                }
                                           },
-                                          borderRadius:
+                                          borderRadius: 
                                               BorderRadius.circular(30),
                                           child: const Padding(
                                             padding: EdgeInsets.symmetric(

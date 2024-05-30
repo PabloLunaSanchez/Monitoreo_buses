@@ -64,8 +64,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       numbercontroller.text.trim()
     );
     try {
-      var res =
-          await http.post(Uri.parse(API.signUpUser), body: userModel.toJson());
+      var res = await http.post(Uri.parse(API.signUpUser), body: userModel.toJson());
 
       if (res.statusCode == 200) {
         var resBodyOfSingup = jsonDecode(res.body);

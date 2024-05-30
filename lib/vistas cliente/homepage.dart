@@ -7,9 +7,17 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:app_bus_tesis/componets.dart/constantes.dart';
+import 'package:app_bus_tesis/userPreferences/currentUser.dart';
+import 'package:app_bus_tesis/userPreferences/user_preferences.dart';
+import 'package:app_bus_tesis/vistas%20cliente/editarPerfilCliente.dart';
+import 'package:app_bus_tesis/vistas%20conductor/bienvCond_Client.dart';
 import 'package:app_bus_tesis/vistas%20conductor/editarperfilConduc.dart';
 import 'package:app_bus_tesis/vistas%20conductor/historial_viajes.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -18,13 +26,17 @@ import 'package:location/location.dart';
 import 'package:intl/intl.dart';
 
 class MapaPage extends StatefulWidget {
+ 
   const MapaPage({Key? key}) : super(key: key);
-
+  
   @override
   State<MapaPage> createState() => MapaPageState();
 }
 
 class MapaPageState extends State<MapaPage> {
+   CurrentUser _recordarCurrentUser = Get.put(CurrentUser());
+    CurrentUser _currentUser = Get.put(CurrentUser());
+   
   final Completer<GoogleMapController> _controller = Completer();
 
   static const LatLng sourceLocation = LatLng(37.33500926, -122.03272188);
@@ -308,254 +320,302 @@ class MapaPageState extends State<MapaPage> {
     return "Dirección no disponible";
   }
 
+  cerrarSesion()async{
+    var resultResponse = await Get.dialog(
+   AlertDialog(
+    backgroundColor: const ui.Color.fromARGB(255, 140, 194, 241),
+    title: const Text(
+     "Cerrar sesion",
+     style: TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold
+     ),
+    ),
+    content: const Text(
+      "Esta seguro que desea cerrar sesion?"
+    ),
+    actions: [
+      TextButton(onPressed: (){
+        Get.back();
+      }, child: const Text("No",
+      style: TextStyle(
+        color: Colors.black
+      ),
+      )),
+      TextButton(onPressed: (){
+        Get.back(result: "Sesion cerrada");
+      }, child: const Text("Si",
+      style: TextStyle(
+        color: Colors.black
+      ),
+      ))
+    ],
+    ));
+
+   if(resultResponse == "Sesion cerrada"){
+    RecordarUserPref.removerUserInfo().then((value){
+      Get.off(Conductor_ClientePage());
+    });
+   }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawerEnableOpenDragGesture: false,
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 11, 9, 103),
-        centerTitle: true,
-        title: Text(
-          "Mapa bus escolar",
-          style: TextStyle(color: Colors.white),
+    return GetBuilder(
+      init: CurrentUser(),
+      initState: (currentState){
+        _recordarCurrentUser.obtenerInfoUser();
+      },
+      builder: (controller) {
+        
+       
+      return Scaffold(
+        drawerEnableOpenDragGesture: false,
+        appBar: AppBar(
+          backgroundColor: Color.fromARGB(255, 11, 9, 103),
+          centerTitle: true,
+          title: Text(
+            "Mapa bus escolar",
+            style: TextStyle(color: Colors.white),
+          ),
+          iconTheme: IconThemeData(
+              color: Colors
+                  .white), // Cambia "Colors.white" al color que desees para las tres líneas del ícono del drawer
         ),
-        iconTheme: IconThemeData(
-            color: Colors
-                .white), // Cambia "Colors.white" al color que desees para las tres líneas del ícono del drawer
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text("Andrea Perez Castillo"),
-              accountEmail: Text("andrea125@gmail.com"),
-              currentAccountPicture: CircleAvatar(
-                child: ClipOval(
-                    child: Image.asset('assets/images/avatar-cindy-.png')),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                image: DecorationImage(
-                  image: AssetImage('assets/images/fondoanavbar.jpg'),
-                  fit: BoxFit.cover,
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              UserAccountsDrawerHeader(
+                 accountName: Text('${_currentUser.user.nombre_tutor} ${_currentUser.user.apellido_tutor}'), 
+                accountEmail: Text(_currentUser.user.correo),
+                currentAccountPicture: CircleAvatar(
+                  child: ClipOval(
+                      child: Image.asset('assets/images/avatar-cindy-.png')),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/fondoanavbar.jpg'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Editar perfil'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => EditProfilePage()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.history),
-              title: Text('Historial de viajes'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HistorialViajes(
-                      origen: sourceAddress,
-                      destino: destinationAddress,
-                      horaLlegada: arrivalMessage,
-                    ),
-                  ),
-                );
-              },
-            ),
-            
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Cerrar sesión'),
-              onTap: () {
-                // Implementa la acción deseada.
-              },
-            ),
-          ],
-        ),
-      ),
-      body: currentLocation == null
-          ? Center(
-              child: Text("Loading"),
-            )
-          : Container(
-              child: Stack(
-                children: [
-                  GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      zoom: 13.8,
-                      target: LatLng(
-                        currentLocation!.latitude!,
-                        currentLocation!.longitude!,
+              ListTile(
+                leading: Icon(Icons.account_circle),
+                title: Text('Editar perfil'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => EditProfilePageCliente()));
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.history),
+                title: Text('Historial de viajes'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HistorialViajes(
+                        origen: sourceAddress,
+                        destino: destinationAddress,
+                        horaLlegada: arrivalMessage,
                       ),
                     ),
-                    polylines: {
-                      Polyline(
-                        polylineId: PolylineId("route"),
-                        points: polylineCoordinates,
-                        color: ui.Color.fromARGB(255, 15, 148, 41),
-                        width: 8
-                      )
-                    },
-                    markers: {
-                      Marker(
-                        markerId: const MarkerId("currentlocation"),
-                        icon: currentLocationIcon,
-                        position: LatLng(
+                  );
+                },
+              ),
+              
+              ListTile(
+                leading: Icon(Icons.logout),
+                title: Text('Cerrar sesión'),
+                onTap: () {
+                cerrarSesion();
+                },
+              ),
+            ],
+          ),
+        ),
+        body: currentLocation == null
+            ? Center(
+                child: Text("Loading"),
+              )
+            : Container(
+                child: Stack(
+                  children: [
+                    GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        zoom: 13.8,
+                        target: LatLng(
                           currentLocation!.latitude!,
                           currentLocation!.longitude!,
                         ),
                       ),
-                      Marker(
-                        markerId: MarkerId("source"),
-                         icon: sourceIcon,
-                        position: sourceLocation,
-                      ),
-                      Marker(
-                        markerId: MarkerId("destino"),
-                         icon: destinationIcon,
-                        position: destination,
-                      )
-                    },
-                     onCameraMove: (position) {
-                    updateDistanceAndDuration(position.target);
-                  },
-                    onMapCreated: (controller) {
-                      _controller.complete(controller);
-                    },
-                  ),
-                  Positioned(
-            bottom: 13.0,
-            left: 20.0,
-            right: 20.0,
-            child: Container(
-              padding: const EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                  color: ui.Color.fromARGB(255, 214, 168, 16),
-                  borderRadius: BorderRadius.circular(10.0),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey.withOpacity(.5),
-                        blurRadius: 7,
-                        spreadRadius: 5)
-                  ]),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment
-                    .stretch, // Ajusta la alineación cruzada para que los elementos se expandan en todo lo ancho
-                              children: [
-                                Text(
-                                  "Su hija andrea esta a :",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  "$duration, de llegar a su destino",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Divider(
-                                  thickness: 1,
-                                  color: Colors.amber.shade400,
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      " Distancia:",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 19,
-                                          color: Colors.black),
-                                    ),
-                                    Text(
-                                      "                 $distance",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                          color: Colors.black),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(
-                                        Icons.location_on_outlined,
-                                        size: 30,
-                                        color: ui.Color.fromARGB(255, 212, 74, 10),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/origen.png",
-                                      width: 34,
-                                      height: 34,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Expanded(
-                                        child: Container(
-                                      child: Text(
-                                        "$sourceAddress",
-                                        style: TextStyle(
-                                            fontSize: 16, color: Colors.black),
-                                      ),
-                                    ))
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/destino.png",
-                                      width: 34,
-                                      height: 34,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        child: Text(
-                                          "$destinationAddress",
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.black),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                )
-                              ],
-                            ),
+                      polylines: {
+                        Polyline(
+                          polylineId: PolylineId("route"),
+                          points: polylineCoordinates,
+                          color: ui.Color.fromARGB(255, 15, 148, 41),
+                          width: 8
+                        )
+                      },
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId("currentlocation"),
+                          icon: currentLocationIcon,
+                          position: LatLng(
+                            currentLocation!.latitude!,
+                            currentLocation!.longitude!,
                           ),
                         ),
-                ],
-              
+                        Marker(
+                          markerId: MarkerId("source"),
+                           icon: sourceIcon,
+                          position: sourceLocation,
+                        ),
+                        Marker(
+                          markerId: MarkerId("destino"),
+                           icon: destinationIcon,
+                          position: destination,
+                        )
+                      },
+                       onCameraMove: (position) {
+                      updateDistanceAndDuration(position.target);
+                    },
+                      onMapCreated: (controller) {
+                        _controller.complete(controller);
+                      },
+                    ),
+                    Positioned(
+              bottom: 13.0,
+              left: 20.0,
+              right: 20.0,
+              child: Container(
+                padding: const EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                    color: ui.Color.fromARGB(255, 214, 168, 16),
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.grey.withOpacity(.5),
+                          blurRadius: 7,
+                          spreadRadius: 5)
+                    ]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment
+                      .stretch, // Ajusta la alineación cruzada para que los elementos se expandan en todo lo ancho
+                                children: [
+                                  Text(
+                                    "Su hija andrea esta a :",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    "$duration, de llegar a su destino",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Divider(
+                                    thickness: 1,
+                                    color: Colors.amber.shade400,
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        " Distancia:",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 19,
+                                            color: Colors.black),
+                                      ),
+                                      Text(
+                                        "                 $distance",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: Colors.black),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {},
+                                        icon: Icon(
+                                          Icons.location_on_outlined,
+                                          size: 30,
+                                          color: ui.Color.fromARGB(255, 212, 74, 10),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        "assets/images/origen.png",
+                                        width: 34,
+                                        height: 34,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Expanded(
+                                          child: Container(
+                                        child: Text(
+                                          "$sourceAddress",
+                                          style: TextStyle(
+                                              fontSize: 16, color: Colors.black),
+                                        ),
+                                      ))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        "assets/images/destino.png",
+                                        width: 34,
+                                        height: 34,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Expanded(
+                                        child: Container(
+                                          child: Text(
+                                            "$destinationAddress",
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                  ],
+                
+                ),
               ),
-            ),
+      
     );
   }
-}
+);}}
