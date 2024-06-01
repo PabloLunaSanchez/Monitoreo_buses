@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:app_bus_tesis/Modelos/user.dart';
 import 'package:app_bus_tesis/api_conexion/api_conexion.dart';
 import 'package:app_bus_tesis/componets.dart/page_title_bar.dart';
@@ -13,6 +15,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -30,6 +34,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
   var numbercontroller = TextEditingController();
   var isObsecure = true.obs;
 
+  File? _file;
+  String status = '';
+  late String base64image;
+  File? tempfile;
+  String error = 'Error';
+
+  Future<void> chooseImage() async {
+  final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+  if (pickedFile != null) {
+    setState(() {
+      _file = File(pickedFile.path);
+    });
+
+    // Guardar la ruta del archivo en SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('user_image_path', pickedFile.path);
+  }
+}
+
+
+  
   validateUserEmail() async {
     try {
       var res = await http.post(Uri.parse(API.validateEmailUser),
@@ -44,6 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               msg: "El email ya esta siendo usado por otro usuario");
         } else {
           registraryguardarusuarios();
+         
         }
       }
     } catch (e) {
@@ -52,7 +78,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  registraryguardarusuarios() async {
+registraryguardarusuarios() async {
+    if (_file == null) {
+      Fluttertoast.showToast(msg: "Por favor, selecciona una imagen");
+      return;
+    }
+
+    // Convierte la imagen a una cadena base64
+    List<int> imageBytes = await _file!.readAsBytes();
+    String base64Image = base64Encode(imageBytes); // Aquí se obtiene la cadena base64
+
     User userModel = User(
       1,
       emailController.text.trim(),
@@ -61,17 +96,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
       tutorLastNameController.text.trim(),
       childNameController.text.trim(),
       childLastNameController.text.trim(),
-      numbercontroller.text.trim()
+      numbercontroller.text.trim(),
+      base64Image, // Se asigna la cadena base64 al modelo de usuario
     );
+
     try {
       var res = await http.post(Uri.parse(API.signUpUser), body: userModel.toJson());
 
       if (res.statusCode == 200) {
-        var resBodyOfSingup = jsonDecode(res.body);
-        if (resBodyOfSingup['success'] == true) {
-          Fluttertoast.showToast(msg: "Felicidades tu cuenta ha sido creada");
+        var resBodyOfSignup = jsonDecode(res.body);
+        if (resBodyOfSignup['success'] == true) {
+          Fluttertoast.showToast(msg: "¡Felicidades! Tu cuenta ha sido creada");
         } else {
-          Fluttertoast.showToast(msg: "Ocurrio un error");
+          Fluttertoast.showToast(msg: "Ocurrió un error al registrarse");
         }
       }
     } catch (e) {
@@ -79,6 +116,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       Fluttertoast.showToast(msg: e.toString());
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +152,81 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(
                               height: 10,
                             ),
-                            iconButton2(context),
+                            Center(
+                child: Stack(
+                  children: [
+                    if (_file != null)
+                      Container(
+                        width: 130,
+                        height: 130,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 4,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              spreadRadius: 2,
+                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.1),
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(_file!),
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 130,
+                        height: 130,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 4,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              spreadRadius: 2,
+                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.1),
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: AssetImage("assets/images/Placeholder.png"),
+                          ),
+                        ),
+                      ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        height: 45,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            width: 4,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                          ),
+                          color: Colors.green,
+                        ),
+                        child: IconButton(
+                          onPressed: chooseImage,
+                          icon: const Icon(Icons.add_a_photo, size: 20, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+                           /////// imagen
                             Form(
                                 key: formkey,
                                 child: Padding(
@@ -608,19 +720,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 }
 
-iconButton2(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: const [
-      RoundedIcon(
-        imageUrl: "assets/images/family.png",
-      ),
-      SizedBox(
-        width: 20,
-      ),
-    ],
-  );
-}
+
 
 class EditProfilePage extends StatefulWidget {
   @override

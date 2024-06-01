@@ -25,6 +25,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:intl/intl.dart';
 
+
 class MapaPage extends StatefulWidget {
  
   const MapaPage({Key? key}) : super(key: key);
@@ -36,12 +37,13 @@ class MapaPage extends StatefulWidget {
 class MapaPageState extends State<MapaPage> {
    CurrentUser _recordarCurrentUser = Get.put(CurrentUser());
     CurrentUser _currentUser = Get.put(CurrentUser());
+
    
   final Completer<GoogleMapController> _controller = Completer();
 
   static const LatLng sourceLocation = LatLng(37.33500926, -122.03272188);
   static const LatLng destination = LatLng(37.33429383, -122.06600055);
-
+  
 
   List<LatLng> polylineCoordinates = [];
   LocationData? currentLocation;
@@ -58,7 +60,11 @@ class MapaPageState extends State<MapaPage> {
 
   BitmapDescriptor sourceIcon = BitmapDescriptor.defaultMarker;
   BitmapDescriptor destinationIcon = BitmapDescriptor.defaultMarker;
+
   BitmapDescriptor currentLocationIcon = BitmapDescriptor.defaultMarker;
+  
+  
+   
 
   void setCustomMarkerIcon() async {
     double customMarkerIconSize = 100.0;
@@ -264,6 +270,7 @@ class MapaPageState extends State<MapaPage> {
     getPolyPoints();
     getCurrentLocation();
     setCustomMarkerIcon();
+    
     getRouteInfo();
     getAddressFromLatLng(sourceLocation).then((value) {
       setState(() {
@@ -359,6 +366,7 @@ class MapaPageState extends State<MapaPage> {
    }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
@@ -367,8 +375,6 @@ class MapaPageState extends State<MapaPage> {
         _recordarCurrentUser.obtenerInfoUser();
       },
       builder: (controller) {
-        
-       
       return Scaffold(
         drawerEnableOpenDragGesture: false,
         appBar: AppBar(
@@ -386,7 +392,7 @@ class MapaPageState extends State<MapaPage> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
-              UserAccountsDrawerHeader(
+          UserAccountsDrawerHeader(
                  accountName: Text('${_currentUser.user.nombre_tutor} ${_currentUser.user.apellido_tutor}'), 
                 accountEmail: Text(_currentUser.user.correo),
                 currentAccountPicture: CircleAvatar(
@@ -401,12 +407,12 @@ class MapaPageState extends State<MapaPage> {
                   ),
                 ),
               ),
+           
               ListTile(
                 leading: Icon(Icons.account_circle),
                 title: Text('Editar perfil'),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => EditProfilePageCliente()));
+                 Get.to(EditProfilePageCliente());
                 },
               ),
               ListTile(

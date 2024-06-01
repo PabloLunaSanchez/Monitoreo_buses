@@ -32,6 +32,8 @@
 <string>Tu descripción de por qué la aplicación necesita acceder a la ubicación del usuario mientras está en uso.</string>
 <key>NSLocationAlwaysUsageDescription</key>
 <string>Tu descripción de por qué la aplicación necesita acceder a la ubicación del usuario en todo momento.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Necesitamos acceso a tu biblioteca de fotos para seleccionar una imagen</string>
 
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
