@@ -375,6 +375,7 @@ class MapaPageState extends State<MapaPage> {
         _recordarCurrentUser.obtenerInfoUser();
       },
       builder: (controller) {
+         String imageUrl = 'http://192.168.1.164/api_tesis_monitoreo_buses/uploads/image${_currentUser.user.base64Image}';
       return Scaffold(
         drawerEnableOpenDragGesture: false,
         appBar: AppBar(
@@ -392,12 +393,11 @@ class MapaPageState extends State<MapaPage> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
-          UserAccountsDrawerHeader(
-                 accountName: Text('${_currentUser.user.nombre_tutor} ${_currentUser.user.apellido_tutor}'), 
+              UserAccountsDrawerHeader(
+                accountName: Text('${_currentUser.user.nombre_tutor} ${_currentUser.user.apellido_tutor}'),
                 accountEmail: Text(_currentUser.user.correo),
                 currentAccountPicture: CircleAvatar(
-                  child: ClipOval(
-                      child: Image.asset('assets/images/avatar-cindy-.png')),
+                  backgroundImage: NetworkImage(imageUrl), // Cargar la imagen desde la URL completa
                 ),
                 decoration: BoxDecoration(
                   color: Colors.blue,
@@ -407,7 +407,6 @@ class MapaPageState extends State<MapaPage> {
                   ),
                 ),
               ),
-           
               ListTile(
                 leading: Icon(Icons.account_circle),
                 title: Text('Editar perfil'),

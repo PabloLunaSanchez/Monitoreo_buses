@@ -34,7 +34,6 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
 
   File? _file;
   String status = '';
-  late String base64image;
   File? tempfile;
   String error = 'Error';
 
