@@ -4,7 +4,6 @@ import 'package:app_bus_tesis/api_conexion/api_conexion.dart';
 import 'package:app_bus_tesis/userPreferences/currentUser.dart';
 import 'package:app_bus_tesis/vistas%20cliente/homepage.dart';
 import 'package:app_bus_tesis/vistas%20conductor/principal_conductor.dart';
-import 'package:app_bus_tesis/vistas%20conductor/registroConductorParte2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -38,18 +37,18 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
   String error = 'Error';
 
   Future<void> chooseImage() async {
-  final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-  if (pickedFile != null) {
-    setState(() {
-      _file = File(pickedFile.path);
-    });
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _file = File(pickedFile.path);
+      });
 
-    // Guardar la ruta del archivo en SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('user_image_path', pickedFile.path);
+      // Guardar la ruta del archivo en SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('user_image_path', pickedFile.path);
+    }
   }
-}
-
 
   @override
   void initState() {
@@ -60,14 +59,14 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
   }
 
   void loadSavedImage() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? imagePath = prefs.getString('user_image_path');
-  if (imagePath != null) {
-    setState(() {
-      _file = File(imagePath);
-    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString('user_image_path');
+    if (imagePath != null) {
+      setState(() {
+        _file = File(imagePath);
+      });
+    }
   }
-}
 
   void cargarDatosUsuario() {
     // Actualizar los controladores con los datos actuales del usuario
@@ -81,6 +80,13 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
   }
 
   void saveChanges() async {
+    // Convertir la imagen a base64
+    String base64Image = '';
+    if (_file != null) {
+      List<int> imageBytes = await _file!.readAsBytes();
+      base64Image = base64Encode(imageBytes);
+    }
+
     var url = API.actualizar; // URL de tu API para actualizar datos
     var response = await http.post(
       Uri.parse(url),
@@ -93,9 +99,9 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
         'apellido_tutor': apellidoTutorController.text,
         'nombre_hijo': nombreHijoController.text,
         'apellido_hijo': apellidoHijoController.text,
+        'image': base64Image, // Añadir la imagen a la solicitud
       },
     );
-    
 
     if (response.statusCode == 200) {
       var jsonResponse = json.decode(response.body);
@@ -111,8 +117,8 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
           _currentUser.user.apellido_tutor = updatedUser['apellido_tutor'];
           _currentUser.user.nombre_hijo = updatedUser['nombre_hijo'];
           _currentUser.user.apellido_hijo = updatedUser['apellido_hijo'];
+          _currentUser.user.base64Image = updatedUser['image'];
         });
-        
 
         // Mostrar mensaje de éxito
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -134,6 +140,8 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
 
   @override
   Widget build(BuildContext context) {
+    String imageUrl =
+        'http://192.168.1.164/api_tesis_monitoreo_buses/uploads/image${_currentUser.user.base64Image}';
     return Scaffold(
       key: EditProfilePageCliente.editProfileKey,
       appBar: AppBar(
@@ -209,7 +217,7 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
                           shape: BoxShape.circle,
                           image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: AssetImage("assets/images/Placeholder.png"),
+                            image: NetworkImage(imageUrl),
                           ),
                         ),
                       ),
@@ -229,7 +237,8 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
                         ),
                         child: IconButton(
                           onPressed: chooseImage,
-                          icon: const Icon(Icons.add_a_photo, size: 20, color: Colors.black),
+                          icon: const Icon(Icons.add_a_photo,
+                              size: 20, color: Colors.black),
                         ),
                       ),
                     ),
@@ -239,7 +248,8 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
               SizedBox(height: 35),
               // Campos de texto para editar perfil
               buildTextField("Correo", correoController),
-              buildTextField("Contraseña", contrasenaController, isPassword: true),
+              buildTextField("Contraseña", contrasenaController,
+                  isPassword: true),
               buildTextField("Teléfono", telefonoController),
               buildTextField("Nombre del tutor", nombreTutorController),
               buildTextField("Apellido del tutor", apellidoTutorController),
@@ -269,9 +279,8 @@ class _EditProfilePageState extends State<EditProfilePageCliente> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: (){
-                        saveChanges();
-                        
+                    onPressed: () {
+                      saveChanges();
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(

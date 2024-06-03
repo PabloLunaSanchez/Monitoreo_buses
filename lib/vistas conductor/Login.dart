@@ -53,8 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
         Fluttertoast.showToast(msg: "Incorrecto vuelva a escribir su correo o contraseña, vuelve a intentarlo");
         }
       }
-    
-    
   }
   
 

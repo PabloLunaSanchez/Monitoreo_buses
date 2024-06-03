@@ -397,7 +397,7 @@ class MapaPageState extends State<MapaPage> {
                 accountName: Text('${_currentUser.user.nombre_tutor} ${_currentUser.user.apellido_tutor}'),
                 accountEmail: Text(_currentUser.user.correo),
                 currentAccountPicture: CircleAvatar(
-                  backgroundImage: NetworkImage(imageUrl), // Cargar la imagen desde la URL completa
+                  backgroundImage: NetworkImage(imageUrl), 
                 ),
                 decoration: BoxDecoration(
                   color: Colors.blue,

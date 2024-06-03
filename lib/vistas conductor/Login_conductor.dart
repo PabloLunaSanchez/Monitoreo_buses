@@ -1,13 +1,54 @@
+import 'dart:convert';
+
+import 'package:app_bus_tesis/Modelos/conductor.dart';
+import 'package:app_bus_tesis/api_conexion/api_conexion.dart';
+import 'package:app_bus_tesis/conductorPreferences/conductor_preferences.dart';
+import 'package:app_bus_tesis/vistas%20conductor/principal_conductor.dart';
 import 'package:app_bus_tesis/vistas%20conductor/registroconductor.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+
+import 'package:http/http.dart' as http;
+
 
 class LoginConductor extends StatelessWidget {
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final isObsecure = true.obs;
+
+  loginUsuario() async{
+  
+      var res = await http.post(Uri.parse(API.loginConductor),
+       body: {
+       "correo" : emailController.text.trim(),
+       "contrasena" : passwordController.text.trim()
+       },
+    );
+  if (res.statusCode == 200) {
+        var resBodyOfLogin = jsonDecode(res.body);
+        if (resBodyOfLogin['success'] == true) {
+
+          Fluttertoast.showToast(msg: "Ha inciado sesion correctamente");
+     
+
+         Conductor conductorInfo = Conductor.fromJson(resBodyOfLogin["userData"]);
+         //guardar info del usuario
+
+         await RecordarConductorrPref.AlmacenaminetoInfoUser(conductorInfo);
+         
+         Future.delayed(Duration(milliseconds: 2000),()
+         {
+          Get.to(PrincipalConductor());
+         });
+        }
+        else{
+        Fluttertoast.showToast(msg: "Incorrecto vuelva a escribir su correo o contraseña, vuelve a intentarlo");
+        }
+      }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,8 +185,8 @@ class LoginConductor extends StatelessWidget {
                                         suffixIcon: IconButton(
                                           icon: Icon(
                                             isObsecure.value
-                                                ? Icons.visibility
-                                                : Icons.visibility_off,
+                                                ? Icons.visibility_off
+                                                : Icons.visibility,
                                           ),
                                           onPressed: () {
                                             isObsecure.value = !isObsecure.value;
@@ -214,7 +255,7 @@ class LoginConductor extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () {
                             if (formKey.currentState!.validate()) {
-                              // Acciones que deseas realizar cuando el formulario es válido
+                             loginUsuario();
                             }
                           },
                           child: Container(

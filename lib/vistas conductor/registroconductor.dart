@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app_bus_tesis/Modelos/conductor.dart';
 import 'package:app_bus_tesis/api_conexion/api_conexion.dart';
@@ -8,6 +9,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String correo = '';
 String contrasena = '';
@@ -16,6 +19,8 @@ String nombre = '';
 String placas = '';
 String capacidad = '';
 bool showPassword = false;
+
+
 
 class Registroconductor1 extends StatefulWidget {
   @override
@@ -33,6 +38,26 @@ class _Registroconductor1State extends State<Registroconductor1> {
   var capacidadController = TextEditingController();
   var puertasController = TextEditingController();
   var isObsecure = true.obs;
+
+   File? _file;
+  String status = '';
+  late String base64image;
+  File? tempfile;
+  String error = 'Error';
+
+  Future<void> chooseImage() async {
+  final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+  if (pickedFile != null) {
+    setState(() {
+      _file = File(pickedFile.path);
+    });
+
+    // Guardar la ruta del archivo en SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('user_image_path', pickedFile.path);
+  }
+}
+
 
   validateUserEmail() async {
     try {
@@ -57,6 +82,15 @@ class _Registroconductor1State extends State<Registroconductor1> {
   }
 
   registraryguardarusuarios() async {
+      if (_file == null) {
+      Fluttertoast.showToast(msg: "Por favor, selecciona una imagen");
+      return;
+    }
+
+    // Convierte la imagen a una cadena base64
+    List<int> imageBytes = await _file!.readAsBytes();
+    String base64Image = base64Encode(imageBytes);
+     // Aquí se obtiene la cadena base64
     Conductor conductorModel = Conductor(
         1,
         nombreController.text.trim(),
@@ -65,7 +99,10 @@ class _Registroconductor1State extends State<Registroconductor1> {
         telefonoController.text.trim(),
         placaController.text.trim(),
         capacidadController.text.trim(),
-        puertasController.text.trim());
+        puertasController.text.trim(),
+        base64Image, // Se asigna la cadena base64 al modelo de usuario
+    );
+       
     try {
       var res = await http.post(Uri.parse(API.signUpConductor),
           body: conductorModel.toJson());
@@ -117,6 +154,89 @@ class _Registroconductor1State extends State<Registroconductor1> {
                           color: Colors.black87,
                         ),
                       ),
+                      
+                      
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Center(
+                child: Stack(
+                  children: [
+                    if (_file != null)
+                      Container(
+                        width: 130,
+                        height: 130,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 4,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              spreadRadius: 2,
+                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.1),
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(_file!),
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 130,
+                        height: 130,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 4,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              spreadRadius: 2,
+                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.1),
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: AssetImage("assets/images/Placeholder.png"),
+                          ),
+                        ),
+                      ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        height: 45,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            width: 4,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                          ),
+                          color: Colors.green,
+                        ),
+                        child: IconButton(
+                          onPressed: chooseImage,
+                          icon: const Icon(Icons.add_a_photo, size: 20, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+                           /////// imagen
                       SizedBox(height: 20.0),
                       Form(
                         key: formkey,
@@ -558,7 +678,12 @@ class _Registroconductor1State extends State<Registroconductor1> {
                         ),
                       ),
                     ]),
-              )));
+              
+             
+              ]),
+              ),
+              ),
+              );
   }
 
   Widget buildTextField(

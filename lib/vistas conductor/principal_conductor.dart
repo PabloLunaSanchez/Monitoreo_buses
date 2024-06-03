@@ -7,7 +7,12 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:app_bus_tesis/componets.dart/constantes.dart';
+import 'package:app_bus_tesis/conductorPreferences/conductor_preferences.dart';
+import 'package:app_bus_tesis/conductorPreferences/currentUser.dart';
+import 'package:app_bus_tesis/vistas%20cliente/editarPerfilCliente.dart';
+import 'package:app_bus_tesis/vistas%20conductor/bienvCond_Client.dart';
 import 'package:app_bus_tesis/vistas%20conductor/editarperfilConduc.dart';
+import 'package:app_bus_tesis/vistas%20conductor/historial_viajes.dart';
 import 'package:app_bus_tesis/vistas%20conductor/listaAlumnos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +20,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
@@ -31,6 +38,8 @@ class PrincipalConductor extends StatefulWidget {
 
 class OrderTrackingPageState extends State<PrincipalConductor> {
   final Completer<GoogleMapController> _controller = Completer();
+   CurrentUserConductor _recordarCurrentUser = Get.put(CurrentUserConductor());
+    CurrentUserConductor _currentUser = Get.put(CurrentUserConductor());
 
   static const LatLng sourceLocation = LatLng(37.33500926, -122.03272188);
   static const LatLng destination = LatLng(37.33429383, -122.06600055);
@@ -51,6 +60,10 @@ class OrderTrackingPageState extends State<PrincipalConductor> {
   String duration = '';
   String destinationAddressText = '';
   bool destinationReached = false;
+  String sourceAddress = ""; // Variable para almacenar la dirección del origen
+  String destinationAddress =
+      ""; // Variable para almacenar la dirección del destino
+  String arrivalMessage = "";
   LatLng originalLocation =
       sourceLocation; // Guarda el punto de origen original
   BitmapDescriptor sourceIcon = BitmapDescriptor.defaultMarker;
@@ -71,6 +84,47 @@ class OrderTrackingPageState extends State<PrincipalConductor> {
  directcall()async{
   await FlutterPhoneDirectCaller.callNumber('123456789');
  }
+
+ 
+  cerrarSesion()async{
+    var resultResponse = await Get.dialog(
+   AlertDialog(
+    backgroundColor: const ui.Color.fromARGB(255, 140, 194, 241),
+    title: const Text(
+     "Cerrar sesion",
+     style: TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold
+     ),
+    ),
+    content: const Text(
+      "Esta seguro que desea cerrar sesion?"
+    ),
+    actions: [
+      TextButton(onPressed: (){
+        Get.back();
+      }, child: const Text("No",
+      style: TextStyle(
+        color: Colors.black
+      ),
+      )),
+      TextButton(onPressed: (){
+        Get.back(result: "Sesion cerrada");
+      }, child: const Text("Si",
+      style: TextStyle(
+        color: Colors.black
+      ),
+      ))
+    ],
+    ));
+
+   if(resultResponse == "Sesion cerrada"){
+    RecordarConductorrPref.removerUserInfo().then((value){
+      Get.off(Conductor_ClientePage());
+    });
+   }
+  }
+
 
   void getCurrentLocation() async {
     Location location = Location();
@@ -345,6 +399,13 @@ class OrderTrackingPageState extends State<PrincipalConductor> {
 
   @override
   Widget build(BuildContext context) {
+     return GetBuilder(
+      init: CurrentUserConductor(),
+      initState: (currentState){
+        _recordarCurrentUser.obtenerInfoUser();
+      },
+      builder: (controller) {
+          String imageUrl = 'http://192.168.1.164/api_tesis_monitoreo_buses/uploads/image${_currentUser.user.base64Image}';
     return Scaffold(
         appBar: AppBar(
           backgroundColor: ui.Color.fromARGB(255, 11, 109, 190),
@@ -361,12 +422,10 @@ class OrderTrackingPageState extends State<PrincipalConductor> {
             padding: EdgeInsets.zero,
             children: <Widget>[
               UserAccountsDrawerHeader(
-                accountName: Text("Pedro Castillo Rosales"),
-                accountEmail: Text("Pedro1234@gmail.com"),
+                accountName: Text(_currentUser.user.nombre),
+                accountEmail: Text(_currentUser.user.correo),
                 currentAccountPicture: CircleAvatar(
-                  child: ClipOval(
-                      child:
-                          Image.asset('assets/images/conductorprofile.jpeg')),
+                  backgroundImage: NetworkImage(imageUrl), // Cargar la imagen desde la URL completa
                 ),
                 decoration: BoxDecoration(
                   color: Colors.blue,
@@ -380,23 +439,31 @@ class OrderTrackingPageState extends State<PrincipalConductor> {
                 leading: Icon(Icons.account_circle),
                 title: Text('Editar perfil'),
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => EditProfilePage()));
+                 Get.to(EditProfilePage());
                 },
               ),
               ListTile(
                 leading: Icon(Icons.history),
                 title: Text('Historial de viajes'),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HistorialViajes(
+                        origen: sourceAddress,
+                        destino: destinationAddress,
+                        horaLlegada: arrivalMessage,
+                      ),
+                    ),
+                  );
+                },
               ),
-             
+              
               ListTile(
                 leading: Icon(Icons.logout),
                 title: Text('Cerrar sesión'),
                 onTap: () {
-                  // Implementa la acción deseada.
+                cerrarSesion();
                 },
               ),
             ],
@@ -725,7 +792,8 @@ class OrderTrackingPageState extends State<PrincipalConductor> {
           ),
         ]));
   }
-}
+);}}
+
 
 /* class AlgoritmoGenetico {
   static List<int> obtenerMejorRuta(List<List<double>> coordenadasCasas,

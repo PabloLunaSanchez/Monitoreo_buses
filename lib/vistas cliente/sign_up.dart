@@ -7,7 +7,6 @@ import 'package:app_bus_tesis/componets.dart/page_title_bar.dart';
 import 'package:app_bus_tesis/componets.dart/upside.dart';
 import 'package:app_bus_tesis/vistas%20conductor/Login.dart';
 import 'package:app_bus_tesis/vistas%20cliente/homepage.dart';
-import 'package:app_bus_tesis/vistas%20conductor/registroConductorParte2.dart';
 import 'package:app_bus_tesis/widgets/rounded_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
