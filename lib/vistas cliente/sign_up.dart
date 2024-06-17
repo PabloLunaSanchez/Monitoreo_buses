@@ -17,12 +17,12 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SignUpScreen extends StatefulWidget {
+class Registro extends StatefulWidget {
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<Registro> createState() => _RegistroState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _RegistroState extends State<Registro> {
   var formkey = GlobalKey<FormState>();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
@@ -695,7 +695,7 @@ registraryguardarusuarios() async {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          Get.to(LoginScreen());
+                                          Get.to(InicioSesion());
                                         },
                                         child: const Text(
                                           "Inicia sesion aqui",

@@ -7,18 +7,19 @@ import 'package:app_bus_tesis/componets.dart/upside.dart';
 import 'package:app_bus_tesis/userPreferences/user_preferences.dart';
 import 'package:app_bus_tesis/vistas%20cliente/homepage.dart';
 import 'package:app_bus_tesis/vistas%20cliente/sign_up.dart';
+import 'package:app_bus_tesis/vistas%20conductor/screens.dart';
 import 'package:app_bus_tesis/widgets/rounded_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-class LoginScreen extends StatefulWidget {
+class InicioSesion extends StatefulWidget {
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<InicioSesion> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<InicioSesion> {
   var formkey = GlobalKey<FormState>();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
@@ -271,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          Get.to(SignUpScreen());
+                                          Get.to(Registro());
                                         },
                                         child: const Text("Registrate aqui",
                                         style: TextStyle(color: Color.fromARGB(255, 255, 255, 255),fontWeight: FontWeight.w700),
