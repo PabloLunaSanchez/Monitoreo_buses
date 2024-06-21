@@ -10,7 +10,8 @@ El proyecto tiene como finalidad encontrar las mejores rutas posibles mediante I
 ![Captura de Pantalla 2024-06-03 a la(s) 14 01 33](https://github.com/PabloLunaSanchez/bus_location/assets/113323847/b19b2e27-7dc1-4577-baa0-f74acfd497df)
 ![Captura de Pantalla 2024-05-26 a la(s) 17 48 06](https://github.com/PabloLunaSanchez/bus_location/assets/113323847/8a55c2cb-6477-4914-88e9-5d4febd862dd)
 ![Captura de Pantalla 2024-05-22 a la(s) 19 17 53](https://github.com/PabloLunaSanchez/bus_location/assets/113323847/1cb2e6da-6fb9-4db1-b2a1-5cfa0714d68e)
-![vaiajesConductor](https://github.com/PabloLunaSanchez/bus_location/assets/113323847/13faa1f8-b7fd-43dd-a92e-766b8c4c9d95)
+![vaiajesConductor](https://github.com/PabloLunaSanchez/bus_location/assets/113323847/01235f4b-5a3e-421a-b07c-a64bce15cdb7)
+
 
 
 
